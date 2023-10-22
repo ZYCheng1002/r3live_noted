@@ -20,12 +20,13 @@ endif()
 
 find_package(catkin REQUIRED COMPONENTS
                     roscpp
+                    rospy
                     std_msgs
                     geometry_msgs
                     nav_msgs
                     tf
                     cv_bridge
-                    livox_ros_driver
+                    # livox_ros_driver
             )
 
 # find_package(Ceres REQUIRED)
@@ -55,14 +56,25 @@ if(OpenMVS_FOUND)
 	add_definitions(${OpenMVS_DEFINITIONS})
 endif()
 
-# message(WARNING "OpenCV_VERSION: ${OpenCV_VERSION}")
+find_package(message_generation)
 
-include_directories(${catkin_INCLUDE_DIRS})
+add_message_files(
+        FILES
+        CustomMsg.msg
+        CustomPoint.msg
+)
 
 generate_messages(
  DEPENDENCIES
  geometry_msgs
 )
+
+catkin_package(CATKIN_DEPENDS 
+geometry_msgs roscpp rospy  message_runtime)
+
+# message(WARNING "OpenCV_VERSION: ${OpenCV_VERSION}")
+
+include_directories(${catkin_INCLUDE_DIRS})
 
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 find_package(Eigen3)
@@ -70,7 +82,7 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
   ${EIGEN3_INCLUDE_DIR}
   ${PCL_INCLUDE_DIRS}
-  ${livox_ros_driver_INCLUDE_DIRS}
+  # ${livox_ros_driver_INCLUDE_DIRS}
   ./src
   ./src/loam/include
   ./src/tools/
@@ -78,8 +90,6 @@ include_directories(
   ./src/meshing
 )
 
-
-catkin_package()
 
 message(STATUS "===== ${PROJECT_NAME}: OpenCV library status: =====")
 message(STATUS "===== OpenCV ersion: ${OpenCV_VERSION}  =====")
@@ -119,8 +129,7 @@ target_link_libraries(r3live_mapping
                           ${Boost_SERIALIZATION_LIBRARY} # serialization
                           ${OpenCV_LIBRARIES}
                           # ${OpenMVS_LIBRARIES}
-                          pcl_common 
-                          pcl_io) 
+                          ${PCL_LIBRARIES}) 
 
 FIND_PACKAGE(CGAL REQUIRED)
 if(CGAL_FOUND)
